@@ -4,6 +4,8 @@
 </script>
 
 <header>
+	<h1>University name </h1>
+		<h2>Student name </h2>
 
 
 	<nav>

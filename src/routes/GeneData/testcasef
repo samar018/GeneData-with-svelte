@@ -47,74 +47,17 @@
       .domain([0, 4000000]) // Replace 4000000 with the maximum gene_start value
       .range([0, Math.PI * 2]);
 
-    // const geneLines = svg
-    //   .selectAll('line')
-    //   .data(genesData)
-    //   .enter()
-    //   .append('line')
-    //   .attr('x1', (d) => width / 2 + Math.cos(xScale(d.gene_start)) * radius)
-    //   .attr('y1', (d) => height / 2 + Math.sin(xScale(d.gene_start)) * radius)
-    //   .attr('x2', (d) => {
-    //     const angle = xScale(d.gene_start);
-    //     const xOffset = Math.cos(angle) * (radius + (d.strand === 'forward' ? 10 : -10));
-    //     return width / 2 + xOffset;
-    //   })
-    //   .attr('y2', (d) => {
-    //     const angle = xScale(d.gene_start);
-    //     const yOffset = Math.sin(angle) * (radius + (d.strand === 'forward' ? 10 : -10));
-    //     return height / 2 + yOffset;
-    //   })
-    //   .attr('stroke', 'black')
-    //   .attr('opacity', 0.5);
-
-    // const geneLines = svg
-    //   .selectAll('circle.gene-circle')
-    //   .data(genesData)
-    //   .enter()
-    //   .append('circle')
-    //   .attr('class', 'gene-circle')
-    //   .attr('cx', (d) => {
-    //     const angle = xScale(d.gene_start);
-    //     const radiusOffset = (d.strand === 'forward') ? 100 : -0; // Adjust this offset as needed
-    //     return width / 2 + Math.cos(angle) * (radius + radiusOffset);
-    //   })
-    //   .attr('cy', (d) => {
-    //     const angle = xScale(d.gene_start);
-    //     const radiusOffset = (d.strand === 'forward') ? 100 : 0; // Adjust this offset as needed
-    //     return height / 2 + Math.sin(angle) * (radius + radiusOffset);
-    //   })
-    //   .attr('r', 5) // Circle radius
-    //   .attr('fill', (d) => {
-    //     if (d.gene_strand === 'forward') {
-          
-    //         return 'green';
-    //       }
-    //    else {
-    //       return 'blue'; // Color for genes on the reverse strand
-    //     }
-    //   });
-
-const geneLines = svg
-  .selectAll('path.gene-half-circle')
-  .data(genesData)
-  .enter()
-  .append('path')
-  .attr('class', 'gene-half-circle')
-  .attr('d', (d) => {
-    const angle = xScale(d.gene_start);
-    const radiusOffset = (d.gene_strand === 'forward') ? radius + 1 : radius - 1;
-    const cx = width / 2 + Math.cos(angle) * radiusOffset;
-    const cy = height / 2 + Math.sin(angle) * radius;
-    return `M ${cx},${cy} ${cx},${cy - 5}`;
-  })
-  .attr('stroke', (d) => {
-    if (d.gene_strand === 'forward') {
-      return 'green';
-    } else {
-      return 'blue'; // Color for genes on the reverse strand
-    }
-  })
-  .attr('stroke-width', 4);
+    const geneLines = svg
+      .selectAll('line')
+      .data(genesData)
+      .enter()
+      .append('line')
+      .attr('x1', (d) => width / 2 + Math.cos(xScale(d.gene_start)) * radius)
+      .attr('y1', (d) => height / 2 + Math.sin(xScale(d.gene_start)) * radius)
+      .attr('x2', (d) => width / 2 + Math.cos(xScale(d.gene_start)) * (radius + 10))
+      .attr('y2', (d) => height / 2 + Math.sin(xScale(d.gene_start)) * (radius + 10))
+      .attr('stroke', 'black')
+      .attr('opacity', 0.5);
 
 
 
@@ -132,8 +75,8 @@ const tickData = [];
     .attr('y1', (d) => height / 2 + Math.sin(xScale(d)) * radius)
     .attr('x2', (d) => width / 2 + Math.cos(xScale(d)) * (radius + 20)) // Lengthen the tick lines
     .attr('y2', (d) => height / 2 + Math.sin(xScale(d)) * (radius + 20)) // Lengthen the tick lines
-    .attr('stroke', 'black') // Lighter color for tick lines
-    .attr('opacity', 2); // Opacity of tick lines
+    .attr('stroke', 'green') // Lighter color for tick lines
+    .attr('opacity', 0.8); // Opacity of tick lines
 
 
 
@@ -179,6 +122,7 @@ const tickData = [];
     function hideGeneNameAtCenter() {
       geneNames.style('opacity', 0);
     }
+
 
 
     geneLines
