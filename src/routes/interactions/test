@@ -1,0 +1,157 @@
+<!-- InteractionsOverview.svelte -->
+<script>
+  import { onMount } from 'svelte';
+  import { select } from 'd3-selection';
+  // Import the genesData from GenesData.svelte
+  // import { genesData } from './GenesData.svelte';
+
+ // Print genesData to the console
+  // console.log('genesData:', genesData);
+  // Log the imported data to the console
+
+  // Data URL for interactions
+  const interactionsURL = 'https://vda-lab.github.io/assets/interactions.json';
+
+  // Define gene types and their corresponding colors
+  const geneTypes = {
+    Regulator: 'red',
+    Manager: 'yellow',
+    Workhorse: 'green'
+  };
+
+
+  let interactionsData;
+  let genesData
+  onMount(async () => {
+      const genesresponse = await fetch('https://vda-lab.github.io/assets/genes.json');
+      genesData = await genesresponse.json();
+      console.log('genesData:', genesData);
+
+      const response = await fetch(interactionsURL);
+      const interactionsData = await response.json();
+
+      console.log('Component mounted',interactionsData);
+      console.log('Imported genesData:', genesData);
+
+    drawHivePlot();
+
+  });
+
+
+  function drawHivePlot() {
+    const width = 600;
+    const height = 600;
+    const minDistance = 50;
+    const maxDistance = 300;
+
+    const svg = select('svg.interactions-hive-plot')
+      .attr('width', width)
+      .attr('height', height)
+      .append('g')
+      .attr('transform', `translate(${width / 2},${height / 2})`); // Translate to the center
+
+    // Add white background
+    svg.append('rect')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('width', width)
+      .attr('height', height)
+      .attr('fill', 'white');
+
+    const interaction = interactionsData.map((interaction) => {
+      return {
+        id: interaction.from_id,
+        name: interaction.from_name,
+        type: interaction.from_gene_name,
+        x: Math.random() * width,
+        y: Math.random() * height
+      };
+    });
+
+    const genes = genesData.map((gene) => {
+      return {
+        id: gene.gene_id,
+        name: gene.gene_name,
+        type: gene.gene_product,
+        angle: (gene.gene_start / 4000000) * Math.PI * 2, // Scale the angle based on gene_start
+        distance: minDistance + (maxDistance - minDistance) * Math.random() // Randomize distance within the range
+      };
+    });
+
+
+
+
+   // Create separate arrays for each gene type
+    const regulators = [];
+    const managers = [];
+    const workhorses = [];
+
+    genesData.forEach((gene) => {
+      const type = gene.gene_product;
+      if (type === 'Regulator') {
+        regulators.push(gene);
+      } else if (type === 'Manager') {
+        managers.push(gene);
+      } else if (type === 'Workhorse') {
+        workhorses.push(gene);
+      }
+    });
+
+    // Concatenate the arrays in the order you want them to appear
+        const orderedGenes = regulators.concat(managers).concat(workhorses);
+
+    // //  Draw gene circles
+    // svg.selectAll('circle')
+    //   .data(genes)
+    //   .enter()
+    //   .append('circle')
+    //   .attr('cx', (d, i) => d.distance * Math.cos(d.angle))
+    //   .attr('cy', (d, i) => d.distance * Math.sin(d.angle))
+    //   .attr('r', 2)
+    //   .attr('fill', (d) => geneTypes[d.gene_product]);
+
+
+
+
+ // Draw interaction lines
+
+    const linkDistance = 150;
+    svg.selectAll('path')
+      .data(interactionsData)
+      .enter()
+      .append('path')
+      .attr('d', (d) => {
+        const sx = interaction.find((interaction) => interaction.id === d.from_id).x;
+        const sy = interaction.find((interaction) => interaction.id === d.from_id).y;
+        const tx = interaction.find((interaction) => interaction.id === d.to_id).x;
+        const ty = interaction.find((interaction) => interaction.id === d.to_id).y;
+        return `M ${sx},${sy} Q ${sx + linkDistance},${sy + linkDistance} ${tx},${ty}`;
+      })
+      .attr('stroke', 'black')
+      .attr('opacity', 0.3)
+      .on('mouseover', function () {
+              select(this).attr('stroke', 'red').attr('stroke-width', 5).attr('opacity', 0.8);
+            })
+      .on('mouseout', function () {
+              select(this).attr('stroke', 'black').attr('stroke-width', 1).attr('opacity', 0.3);
+            })
+
+      .on('click', function (d) {
+        // Handle click interaction, e.g., redirect to details page
+        console.log('Clicked on interaction:', d);
+      });
+  }
+</script>
+
+<style>
+  svg {
+    display: block;
+    margin: auto;
+    background-color: white; /* Add a white background */
+  }
+</style>
+
+<h1>Your Name</h1>
+<h3>Your University and Student Number</h3>
+
+<svg class="interactions-hive-plot"></svg>
